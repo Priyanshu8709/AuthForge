@@ -3,6 +3,13 @@ const jwt = require("jsonwebtoken");
 const generateOTP = require("../utils/generateOTP");
 const sendMail = require("../utils/sendMail");
 
+const isProd = process.env.NODE_ENV === "production";
+const cookieOptions = {
+    httpOnly: true,
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd,
+    path: "/",
+};
 
 // SIGNUP
 exports.signup = async (req, res) => {
@@ -172,10 +179,7 @@ exports.verifyLoginOTP = async (req, res) => {
 
         // send cookie
         res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: false,
-            path: "/"
+            ...cookieOptions,
         });
 
         // clear otp
@@ -199,17 +203,11 @@ exports.verifyLoginOTP = async (req, res) => {
 exports.logout = async (req, res) => {
     try {
         res.clearCookie("token", {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: false,
-            path: "/"
+            ...cookieOptions,
         });
 
         res.cookie("token", "", {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: false,
-            path: "/",
+            ...cookieOptions,
             expires: new Date(0)
         });
 

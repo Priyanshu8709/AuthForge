@@ -6,12 +6,23 @@ const cors = require("cors");
 
 require('dotenv').config();
 const PORT = process.env.PORT || 3000;  
+const defaultOrigins = ["http://localhost:5173"];
+const envOrigins = (process.env.CLIENT_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
 }));
 
 
@@ -26,6 +37,10 @@ app.get("/", (req,res)=>{
     res.send("Auth API running");
 });
 
-app.listen(PORT, () => {
-    console.log(`App is listening at ${PORT}`);
-})
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`App is listening at ${PORT}`);
+    });
+}
+
+module.exports = app;
