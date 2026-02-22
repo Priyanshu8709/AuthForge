@@ -92,8 +92,8 @@ http://localhost:5000
 
 | Method | Endpoint           | Description         |
 | ------ | ------------------ | ------------------- |
-| POST   | /api/auth/sigup    | Register a new user |
-| POST   | /api/auth/login    | Login existing user |
+| POST   | /api/v1/sigup      | Register a new user |
+| POST   | /api/v1/login      | Login existing user |
 
 ---
 
