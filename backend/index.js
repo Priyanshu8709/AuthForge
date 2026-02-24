@@ -5,25 +5,39 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 require('dotenv').config();
-const PORT = process.env.PORT || 3000;  
-const defaultOrigins = ["http://localhost:5173"];
+const PORT = process.env.PORT || 3000;
+
+const normalizeOrigin = (value) => {
+    if (!value) {
+        return value;
+    }
+    return value.trim().replace(/\/$/, "");
+};
+
+const defaultOrigins = ["http://localhost:5173"].map(normalizeOrigin);
 const envOrigins = (process.env.CLIENT_URL || "")
     .split(",")
-    .map((origin) => origin.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
-const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
+const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
+const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        const normalizedOrigin = normalizeOrigin(origin);
+        if (!normalizedOrigin || allowedOrigins.has(normalizedOrigin)) {
             return callback(null, true);
         }
-        return callback(new Error("Not allowed by CORS"));
+        console.warn(`CORS blocked origin: ${normalizedOrigin}`);
+        return callback(null, false);
     },
     credentials: true,
-}));
+    optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 
 const connectDB = require('./config/database');
