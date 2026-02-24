@@ -1,7 +1,7 @@
 # Secure Auth System
 
 A full-stack authentication and authorization system built with the MERN stack.
-This application demonstrates how real-world web apps securely manage user accounts, login sessions and protected routes.
+This application demonstrates how real-world web apps securely manage user accounts, login sessions, and protected routes.
 
 ---
 
@@ -14,7 +14,7 @@ This application demonstrates how real-world web apps securely manage user accou
 * Protected Backend Routes
 * React Frontend Forms
 * Logout System
-* OTP Email Verification & Password Reset
+* OTP Email Verification
 
 ---
 
@@ -49,9 +49,31 @@ This application demonstrates how real-world web apps securely manage user accou
 
 ```
 secure-auth-system
-│
-├── backend
-└── AuthApp
+|-- backend
+`-- AuthApp
+```
+
+---
+
+## Environment Variables
+
+### Backend (.env)
+
+```
+PORT=5000
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+EMAIL_HOST=smtp.gmail.com
+EMAIL_USER=your_email
+EMAIL_PASS=your_email_app_password
+CLIENT_URL=http://localhost:5173
+NODE_ENV=development
+```
+
+### Frontend (AuthApp/.env)
+
+```
+VITE_API_BASE=http://localhost:5000/api/v1
 ```
 
 ---
@@ -90,16 +112,23 @@ http://localhost:5000
 
 ## API Endpoints
 
-| Method | Endpoint           | Description         |
-| ------ | ------------------ | ------------------- |
-| POST   | /api/v1/sigup      | Register a new user |
-| POST   | /api/v1/login      | Login existing user |
+| Method | Endpoint                | Description                |
+| ------ | ----------------------- | -------------------------- |
+| POST   | /api/v1/signup          | Register a new user        |
+| POST   | /api/v1/verify-signup   | Verify signup OTP          |
+| POST   | /api/v1/login           | Login existing user        |
+| POST   | /api/v1/verify-login    | Verify login OTP           |
+| POST   | /api/v1/logout          | Logout user                |
+| GET    | /api/v1/profile         | Get profile (protected)    |
 
 ---
 
-## Purpose
+## Deployment Notes
 
-This project is built as a portfolio-ready full-stack application demonstrating secure authentication, backend architecture and frontend-backend communication.
+* Set `CLIENT_URL` to your frontend origin and `NODE_ENV=production` in the backend environment.
+* Set `VITE_API_BASE` to your backend public URL during the frontend build.
+* Configure SPA rewrites on your static host (Vercel `vercel.json` or Netlify `_redirects`).
+* Ensure MongoDB Atlas allows your deployment IP (or use a temporary allow-all during testing).
 
 ---
 
