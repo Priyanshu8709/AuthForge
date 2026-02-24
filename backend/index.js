@@ -21,12 +21,25 @@ const envOrigins = (process.env.CLIENT_URL || "")
     .filter(Boolean);
 const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
 
+let originRegex = null;
+if (process.env.CLIENT_URL_REGEX) {
+    try {
+        originRegex = new RegExp(process.env.CLIENT_URL_REGEX);
+    } catch (error) {
+        console.warn("Invalid CLIENT_URL_REGEX, ignoring:", error.message);
+    }
+}
+
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
     origin: (origin, callback) => {
         const normalizedOrigin = normalizeOrigin(origin);
-        if (!normalizedOrigin || allowedOrigins.has(normalizedOrigin)) {
+        if (
+            !normalizedOrigin ||
+            allowedOrigins.has(normalizedOrigin) ||
+            (originRegex && originRegex.test(normalizedOrigin))
+        ) {
             return callback(null, true);
         }
         console.warn(`CORS blocked origin: ${normalizedOrigin}`);
