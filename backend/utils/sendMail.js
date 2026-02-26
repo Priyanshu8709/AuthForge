@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 const sendMail = async (to, otp) => {
     try {
@@ -7,6 +8,8 @@ const sendMail = async (to, otp) => {
             port: process.env.EMAIL_PORT || 465,
             secure: process.env.EMAIL_SECURE !== "false",
             family: 4,
+            // force IPv4 lookup to avoid ENETUNREACH on platforms without IPv6
+            lookup: (hostname, options, callback) => dns.lookup(hostname, { family: 4 }, callback),
             connectionTimeout: 10000,
             socketTimeout: 10000,
             auth: {
