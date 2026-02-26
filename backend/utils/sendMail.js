@@ -2,16 +2,20 @@ const nodemailer = require("nodemailer");
 
 const sendMail = async (to, otp) => {
     try {
-        const transporter = nodemailer.createTransport({
+        const transporterConfig = {
             host: process.env.EMAIL_HOST,
-            port: 587,
-            secure: false,
+            port: process.env.EMAIL_PORT || 465,
+            secure: process.env.EMAIL_SECURE !== "false",
             family: 4,
+            connectionTimeout: 10000,
+            socketTimeout: 10000,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
-        });
+        };
+
+        const transporter = nodemailer.createTransport(transporterConfig);
 
         const info = await transporter.sendMail({
             from: `Secure Auth System <${process.env.EMAIL_USER}>`,
@@ -28,9 +32,11 @@ const sendMail = async (to, otp) => {
         });
 
         console.log("Email sent:", info.response);
+        return true;
 
     } catch (error) {
         console.log("MAIL ERROR:", error.message);
+        throw error;
     }
 };
 
