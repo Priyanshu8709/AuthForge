@@ -1,0 +1,6 @@
+# ignore node modules at root (if workspace contains multiple projects)
+node_modules/
+
+# other common ignores
+.env
+.DS_Store
