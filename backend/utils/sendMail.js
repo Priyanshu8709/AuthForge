@@ -3,13 +3,26 @@ const dns = require("dns");
 
 const sendMail = async (to, otp) => {
     try {
+        // Resolve the SMTP host to an IPv4 address and use that IP for the connection
+        // while preserving the original hostname for TLS SNI verification.
+        let resolvedHost = process.env.EMAIL_HOST;
+        try {
+            const res = await dns.promises.lookup(process.env.EMAIL_HOST, { family: 4 });
+            if (res && res.address) resolvedHost = res.address;
+        } catch (err) {
+            // If IPv4 lookup fails, fall back to the configured host (may try IPv6)
+            console.warn("IPv4 lookup failed, falling back to hostname:", err.message);
+        }
+
         const transporterConfig = {
-            host: process.env.EMAIL_HOST,
+            host: resolvedHost,
             port: process.env.EMAIL_PORT || 465,
             secure: process.env.EMAIL_SECURE !== "false",
             family: 4,
-            // force IPv4 lookup to avoid ENETUNREACH on platforms without IPv6
-            lookup: (hostname, options, callback) => dns.lookup(hostname, { family: 4 }, callback),
+            // Make sure TLS uses the real hostname for SNI/cert validation
+            tls: {
+                servername: process.env.EMAIL_HOST,
+            },
             connectionTimeout: 10000,
             socketTimeout: 10000,
             auth: {
