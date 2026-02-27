@@ -67,9 +67,16 @@ JWT_SECRET=your_jwt_secret
 BREVO_API_KEY=your_brevo_api_key
 # optional - sender address used in emails
 EMAIL_FROM=your_verified_sender@example.com
+# set CLIENT_URL to the address you load the frontend from (can be IP for mobile)
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
+
+> **Tip:** if you're testing from a phone on the same network, use the
+> machine's LAN IP (e.g. `http://192.168.1.5:5173`) and add that value to
+> `CLIENT_URL` so CORS allows it. Cookies are configured with
+> `SameSite=None` so they work across origins, but the domain/origin still
+> has to be in the allowlist above.
 
 ### Frontend (AuthApp/.env)
 

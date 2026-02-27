@@ -3,11 +3,12 @@ const jwt = require("jsonwebtoken");
 const generateOTP = require("../utils/generateOTP");
 const sendMail = require("../utils/sendMail");
 
-const isProd = process.env.NODE_ENV === "production";
+// cookies need to be sent across origins (mobile/dev); use SameSite=None
+// `secure` is only required in production when HTTPS is used
 const cookieOptions = {
     httpOnly: true,
-    sameSite: isProd ? "none" : "lax",
-    secure: isProd,
+    sameSite: "none", // allows cross-site POSTs and fetches
+    secure: process.env.NODE_ENV === "production",
     path: "/",
 };
 
