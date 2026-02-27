@@ -6,12 +6,13 @@ const OtpCard = ({ email, title, subtitle, onVerify, onClose }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!otp.trim()) {
+    const cleaned = otp.replace(/\D/g, '') // remove any non-digit chars
+    if (!cleaned) {
       return
     }
     setSubmitting(true)
     try {
-      const ok = await onVerify(otp.trim())
+      const ok = await onVerify(cleaned)
       if (ok) {
         setOtp('')
       }

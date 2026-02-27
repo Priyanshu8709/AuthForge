@@ -151,19 +151,26 @@ exports.login = async (req, res) => {
 
 exports.verifyLoginOTP = async (req, res) => {
     try {
-        const { email, otp } = req.body;
+        let { email, otp } = req.body;
+        otp = String(otp || '').trim(); // ensure string and trim whitespace
+        console.log(`verifyLoginOTP: email=${email}, submittedOtp='${otp}'`);
 
         const user = await User.findOne({ email });
 
         if (!user) {
+            console.log('verifyLoginOTP: user not found');
             return res.status(400).json({
                 success:false,
                 message:"User not found"
             });
         }
 
+        // debug stored otp/expire
+        console.log(`verifyLoginOTP: storedOtp='${user.otp}', expire=${user.otpExpire}`);
+
         // OTP validation
         if (user.otp !== otp || user.otpExpire < Date.now()) {
+            console.log('verifyLoginOTP: otp mismatch or expired');
             return res.status(400).json({
                 success:false,
                 message:"Invalid or expired OTP"
