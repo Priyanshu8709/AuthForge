@@ -1,29 +1,23 @@
-const nodemailer = require("nodemailer");
+// replaced nodemailer with Brevo (Sendinblue) transactional email API
+const Brevo = require("sib-api-v3-sdk");
 
 const sendMail = async (to, otp) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      logger: true,
-      debug: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, 
+    // configure Brevo client with API key from environment
+    const client = Brevo.ApiClient.instance;
+    const apiKey = client.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
+
+    const apiInstance = new Brevo.TransactionalEmailsApi();
+    // construct request object using helper to ensure fields are copied correctly
+    const payload = Brevo.SendSmtpEmail.constructFromObject({
+      to: [{ email: to }],
+      sender: {
+        email: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        name: "AuthForge Security",
       },
-      tls: {
-     rejectUnauthorized: false,
-     },
-
-    });
-
-    await transporter.sendMail({
-      from: `"AuthForge Security" <${process.env.EMAIL_USER}>`,
-      to,
       subject: "Your AuthForge Verification Code",
-      html: `
+      htmlContent: `
         <div style="font-family:Arial;padding:20px">
           <h2>Verify your account</h2>
           <p>Your OTP is:</p>
@@ -33,9 +27,10 @@ const sendMail = async (to, otp) => {
       `,
     });
 
+    await apiInstance.sendTransacEmail(payload);
     return true;
   } catch (error) {
-    console.log("MAIL ERROR:", error);
+    console.error("MAIL ERROR:", error);
     throw error;
   }
 };

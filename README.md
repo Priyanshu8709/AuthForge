@@ -63,9 +63,10 @@ secure-auth-system
 PORT=5000
 MONGODB_URI=your_mongodb_uri
 JWT_SECRET=your_jwt_secret
-EMAIL_HOST=smtp.gmail.com
-EMAIL_USER=your_email
-EMAIL_PASS=your_email_app_password
+# Brevo (Sendinblue) transactional email service
+BREVO_API_KEY=your_brevo_api_key
+# optional - sender address used in emails
+EMAIL_FROM=your_verified_sender@example.com
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
