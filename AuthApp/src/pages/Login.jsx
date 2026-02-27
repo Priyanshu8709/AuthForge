@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import OtpCard from '../components/OtpCard.jsx'
 import LoadingOverlay from '../components/LoadingOverlay.jsx'
 import { apiGet, apiPost } from '../utils/api.js'
-import { setStoredUser } from '../utils/authStorage.js'
+import { setStoredUser } from '../utils/authStorage.js' // token handled separately
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' })
@@ -70,9 +70,14 @@ const Login = () => {
   const handleVerifyOtp = async (otp) => {
     try {
       setLoaderMessage('Verifying OTP...')
-      await apiPost('/verify-login', { email: otpEmail, otp })
-      const data = await apiGet('/profile')
-      setStoredUser(data.user)
+      const data = await apiPost('/verify-login', { email: otpEmail, otp })
+      // store token locally
+      if (data.token) {
+        localStorage.setItem('authToken', data.token)
+      }
+      if (data.user) {
+        setStoredUser(data.user)
+      }
       toast.success('Login verified successfully.')
       setOtpOpen(false)
       navigate('/profile')

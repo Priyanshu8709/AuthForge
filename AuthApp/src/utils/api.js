@@ -1,38 +1,29 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api/v1'
+import axios from "axios";
 
-const parseJson = async (response) => {
-  try {
-    return await response.json()
-  } catch {
-    return {}
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api/v1';
+
+const API = axios.create({
+  baseURL: API_BASE,
+});
+
+// add token header to each request if present
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
-}
+  return req;
+});
 
+// helpers that mimic the old fetch api
 export const apiPost = async (path, payload) => {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  })
-
-  const data = await parseJson(response)
-  if (!response.ok) {
-    throw new Error(data.message || 'Request failed')
-  }
-  return data
-}
+  const response = await API.post(path, payload);
+  return response.data;
+};
 
 export const apiGet = async (path) => {
-  const response = await fetch(`${API_BASE}${path}`, {
-    credentials: 'include',
-  })
+  const response = await API.get(path);
+  return response.data;
+};
 
-  const data = await parseJson(response)
-  if (!response.ok) {
-    throw new Error(data.message || 'Request failed')
-  }
-  return data
-}
-
-export { API_BASE }
+export { API, API_BASE }

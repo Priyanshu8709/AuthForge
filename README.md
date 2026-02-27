@@ -10,7 +10,7 @@ This application demonstrates how real-world web apps securely manage user accou
 * User Signup & Login
 * Secure Password Hashing (bcrypt)
 * JWT Authentication
-* HTTP-Only Cookies
+* Bearer token stored in localStorage (no cookies required)
 * Protected Backend Routes
 * React Frontend Forms
 * Logout System
@@ -41,7 +41,6 @@ This application demonstrates how real-world web apps securely manage user accou
 
 * bcryptjs
 * jsonwebtoken
-* cookie-parser
 
 ---
 
@@ -71,7 +70,10 @@ EMAIL_FROM=your_verified_sender@example.com
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
-
+> **Note:** authentication tokens are returned in the response body after
+> OTP verification. Clients store the token in `localStorage` and send it
+> in the `Authorization: Bearer <token>` header for subsequent requests.
+> Cookies are no longer used by the API.
 > **Tip:** if you're testing from a phone on the same network, use the
 > machine's LAN IP (e.g. `http://192.168.1.5:5173`) and add that value to
 > `CLIENT_URL` so CORS allows it. In development the cookie is sent with
@@ -129,7 +131,7 @@ http://localhost:5000
 | POST   | /api/v1/login           | Login existing user        |
 | POST   | /api/v1/verify-login    | Verify login OTP           |
 | POST   | /api/v1/logout          | Logout user                |
-| GET    | /api/v1/profile         | Get profile (protected)    |
+| GET    | /api/v1/profile or /api/v1/me | Get profile (protected)    |
 
 ---
 

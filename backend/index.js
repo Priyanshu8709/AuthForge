@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 app.set("trust proxy", 1);
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 require('dotenv').config();
@@ -31,7 +30,6 @@ if (process.env.CLIENT_URL_REGEX) {
 }
 
 app.use(express.json());
-app.use(cookieParser());
 const corsOptions = {
     origin: (origin, callback) => {
         const normalizedOrigin = normalizeOrigin(origin);

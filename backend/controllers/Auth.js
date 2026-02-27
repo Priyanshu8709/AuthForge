@@ -3,17 +3,8 @@ const jwt = require("jsonwebtoken");
 const generateOTP = require("../utils/generateOTP");
 const sendMail = require("../utils/sendMail");
 
-// cookie settings vary depending on environment.  During development
-// the frontend and API may run on the same host (different port) so the
-// cookie is considered same-site.  Production (deployed) uses a different
-// origin, so we require SameSite=None along with Secure.
-const cookieOptions = {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-};
-
+// cookieOptions used previously for cookie-based auth; no longer needed
+// const cookieOptions = { … }
 // SIGNUP
 exports.signup = async (req, res) => {
     try {
@@ -187,20 +178,21 @@ exports.verifyLoginOTP = async (req, res) => {
             { expiresIn: "1d" }
         );
 
-        // send cookie
-        console.log('setting token cookie with options', cookieOptions);
-        res.cookie("token", token, {
-            ...cookieOptions,
-        });
-
         // clear otp
         user.otp = null;
         user.otpExpire = null;
         await user.save();
 
+        // send token in response instead of using cookie
         res.status(200).json({
-            success:true,
-            message:"Login successful"
+            success: true,
+            message: "Login successful",
+            token: token,
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+            },
         });
 
     } catch (error) {
@@ -213,15 +205,7 @@ exports.verifyLoginOTP = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        console.log('clearing token cookie with options', cookieOptions);
-        res.clearCookie("token", {
-            ...cookieOptions,
-        });
-        res.cookie("token", "", {
-            ...cookieOptions,
-            expires: new Date(0)
-        });
-
+        // client is responsible for removing token from storage
         res.status(200).json({
             success: true,
             message: "Logged out"

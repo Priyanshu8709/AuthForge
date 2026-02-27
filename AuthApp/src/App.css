@@ -865,7 +865,7 @@ select {
   background: rgba(8, 6, 14, 0.95);
   color: var(--text);
   padding: 10px 12px;
-  font-size: 0.95rem;
+  font-size: 1rem; /* 16px - prevents mobile zoom on focus */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -921,6 +921,27 @@ select:focus {
   font-size: 0.8rem;
   color: #ff9a9a;
   margin-top: -6px;
+}
+
+/* mobile tweaks */
+@media (max-width: 640px) {
+  html {
+    -webkit-text-size-adjust: 100%; /* avoid automatic text inflation */
+  }
+  .page {
+    padding: 14px 16px 10px 16px;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 1rem; /* reinforce larger text on small screens */
+  }
+  .otp-card,
+  .auth-card {
+    width: 100%;
+    margin: 0;
+  }
 }
 
 input.invalid,

@@ -28,6 +28,7 @@ const Profile = () => {
       } catch (error) {
         toast.error(error.message || 'Please log in.')
         clearStoredUser()
+        localStorage.removeItem('authToken')
         navigate('/login')
       } finally {
         setLoading(false)
@@ -44,6 +45,7 @@ const Profile = () => {
       // ignore logout failures
     } finally {
       clearStoredUser()
+      localStorage.removeItem('authToken')
       toast.success('Logged out successfully.')
       navigate('/')
     }
