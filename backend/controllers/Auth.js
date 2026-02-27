@@ -3,11 +3,13 @@ const jwt = require("jsonwebtoken");
 const generateOTP = require("../utils/generateOTP");
 const sendMail = require("../utils/sendMail");
 
-// cookies need to be sent across origins (mobile/dev); use SameSite=None
-// `secure` is only required in production when HTTPS is used
+// cookie settings vary depending on environment.  During development
+// the frontend and API may run on the same host (different port) so the
+// cookie is considered same-site.  Production (deployed) uses a different
+// origin, so we require SameSite=None along with Secure.
 const cookieOptions = {
     httpOnly: true,
-    sameSite: "none", // allows cross-site POSTs and fetches
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
 };
@@ -186,6 +188,7 @@ exports.verifyLoginOTP = async (req, res) => {
         );
 
         // send cookie
+        console.log('setting token cookie with options', cookieOptions);
         res.cookie("token", token, {
             ...cookieOptions,
         });
@@ -210,10 +213,10 @@ exports.verifyLoginOTP = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
+        console.log('clearing token cookie with options', cookieOptions);
         res.clearCookie("token", {
             ...cookieOptions,
         });
-
         res.cookie("token", "", {
             ...cookieOptions,
             expires: new Date(0)

@@ -74,9 +74,11 @@ NODE_ENV=development
 
 > **Tip:** if you're testing from a phone on the same network, use the
 > machine's LAN IP (e.g. `http://192.168.1.5:5173`) and add that value to
-> `CLIENT_URL` so CORS allows it. Cookies are configured with
-> `SameSite=None` so they work across origins, but the domain/origin still
-> has to be in the allowlist above.
+> `CLIENT_URL` so CORS allows it. In development the cookie is sent with
+> `SameSite=lax` (since the port difference still counts as same‑site),
+> which avoids requirements for `Secure` headers.  In production the cookie
+> will be issued with `SameSite=None; Secure` to support cross‑origin
+> access.
 
 ### Frontend (AuthApp/.env)
 
