@@ -240,9 +240,9 @@ const Login = () => {
               </span>
             ) : null}
             <div className="form-row">
-              <a className="link" href="#">
+              <Link className="link" to="/forgot">
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <button className="btn primary full" type="submit">
               Log in
