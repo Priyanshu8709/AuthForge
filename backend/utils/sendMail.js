@@ -5,29 +5,31 @@ const sendMail = async (to, otp) => {
     try {
         // Resolve the SMTP host to an IPv4 address and use that IP for the connection
         // while preserving the original hostname for TLS SNI verification.
-        let resolvedHost = process.env.EMAIL_HOST;
+        // Gmail-specific transporter options if using Gmail host
+        let resolvedHost = process.env.EMAIL_HOST || "smtp.gmail.com";
         try {
-            const res = await dns.promises.lookup(process.env.EMAIL_HOST, { family: 4 });
+            const res = await dns.promises.lookup(resolvedHost, { family: 4 });
             if (res && res.address) resolvedHost = res.address;
         } catch (err) {
-            // If IPv4 lookup fails, fall back to the configured host (may try IPv6)
             console.warn("IPv4 lookup failed, falling back to hostname:", err.message);
         }
 
         const transporterConfig = {
             host: resolvedHost,
-            port: process.env.EMAIL_PORT || 465,
-            secure: process.env.EMAIL_SECURE !== "false",
+            port: process.env.EMAIL_PORT || 587,
+            secure: false, // use TLS upgrade
+            requireTLS: true,
+            logger: true,
+            debug: true,
             family: 4,
-            // Make sure TLS uses the real hostname for SNI/cert validation
             tls: {
-                servername: process.env.EMAIL_HOST,
+                servername: process.env.EMAIL_HOST || "smtp.gmail.com",
             },
-            connectionTimeout: 10000,
-            socketTimeout: 10000,
+            connectionTimeout: 5 * 60 * 1000,   // 5 minutes
+            socketTimeout: 5 * 60 * 1000,       // 5 minutes
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: process.env.EMAIL_USER || process.env.MAIL_ADDRESS,
+                pass: process.env.EMAIL_PASS || process.env.MAIL_PASSWORD,
             },
         };
 
